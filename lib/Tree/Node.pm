@@ -1,0 +1,228 @@
+package Tree::Node;
+
+use 5.006;
+use strict;
+use warnings;
+
+our $VERSION = '0.01';
+
+require XSLoader;
+XSLoader::load('Tree::Node', $VERSION);
+
+1;
+__END__
+
+=head1 NAME
+
+Tree::Node - Memory-efficient tree nodes in Perl
+
+=begin readme,install
+
+=head1 REQUIREMENTS
+
+Perl 5.6.0 or newer is required. Only core modules are used.
+
+A C compiler to is required to build the module.
+
+=head1 INSTALLATION
+
+Installation can be done using the traditional Makefile.PL or the newer
+Build.PL methods.
+
+Using Makefile.PL:
+
+  perl Makefile.PL
+  make
+  make test
+  make install
+
+(On Windows platforms you should use C<nmake> instead.)
+
+=end readme,install
+
+=for install stop
+
+=head1 SYNOPSIS
+
+  use Tree::Node;
+
+  $node = Tree::Node->new(2);
+
+  $node->set_child(0, $left);
+  $node->set_child(1, $right);
+
+  while ($node->key_cmp($key) < 0) {
+    $node = $node->get_child(0);
+  }    
+
+=head1 DESCRIPTION
+
+This module implements a memory-efficient node type (for trees,
+skip lists and similar data structures) for Perl.
+
+You may ask "Why bother implementing an ordered structure such
+as a tree when Perl has hashes built-in?"  Since Perl is optimized
+for speed over memory usage, hashes (and lists) use a lot of memory.
+
+So the purpose of this package is to provide a simple low-level Node
+class which can be used as a base class to implement various kinds
+of tree structures.  Each node has a key/value pair and a variable
+number of "children" pointers.
+
+There is no Pure-perl version because this package was written to
+overcome limitations of Perl.
+
+=for readme stop
+
+=head2 Methods
+
+=over
+
+=item new
+
+  $node = Tree::Node->new( $child_count );
+
+Creates a new node with C<$child_count> children.  Only as much space as is
+needed is allocated, and the number of children cannot be expanded later
+on.
+
+C<$child_count> cannot exceed L</MAX_LEVEL>.
+
+=item child_count
+
+  $child_count = $node->child_count;
+
+Returns the number of childen allocated.
+
+=item set_key
+
+  $node->set_key($key);
+
+Sets the key. Once it is set, it cannot be changed.
+
+=item key
+
+  $key = $node->key;
+
+Returns the node key.
+
+=item key_cmp
+
+  if ($node->key_cmp($key) < 0) { ... }
+
+Compares the node key with a key using the Perl string comparison
+function C<cmp>.  Returns -1 if the node key is less than the
+argument, 0 if it is equal, and 1 if it is greater.
+
+This method can be overriden if you need a different comparison
+routine.  To use numeric keys, for example:
+
+  package Tree::Node::Numeric;
+
+  use base 'Tree::Node';
+
+  sub key_cmp {
+    my $self = shift;
+    my $key  = shift;
+    return ($self->key <=> $key);
+  }
+
+=item set_value
+
+  $node->set_value($value);
+
+Sets the value of the node.  The value can be changed.
+
+=item value
+
+  $value = $node->value;
+
+Returns the value of the node.
+
+=item set_child
+
+  $node->set_child($index, $child);
+
+Sets the child node.  C<$index> must be between 0 and L</child_count>-1.
+Dues when the C<$index> is out of bounds.
+
+=item get_child
+
+  $child = $node->get_child($index);
+
+Returns the child node.  Dies when the C<$index> is out of bounds.
+
+=item get_child_or_undef
+
+  $child = $node->get_child_or_undef($index);
+
+Like L</get_child>, but returns C<undef> rather than dying when the
+C<$index> is out of bounds.
+
+=item MAX_LEVEL
+
+  $max = Tree::Node::MAX_LEVEL;
+
+Returns the maximum number of children. Defaults to the C constant
+C<UCHAR_MAX>, which is usually 255.
+
+=item _allocated
+
+  $size = $node->_allocated;
+
+This is a utility routine which says how much space is allocated for a
+node.  It does not include the Perl overhead (see L</KNOWN ISSUES> below).
+
+=begin internal
+
+=item _allocated_by_child_count
+
+  $size = Tree::Node::_allocated_by_child_count( $child_count );
+
+This is a utility routine which returns the amount of space that would be
+allocated for a node with C<$child_count> children.
+
+=end internal
+
+=back
+
+=for readme continue
+
+=head1 KNOWN ISSUES
+
+This module implements a Perl wrapper around a C struct, which involves
+a blessed reference to a pointer to the struct.  This overhead may make
+up for any memory savings that the C-based struct provided.
+
+This module uses the C C<malloc> function, which may cause problems on
+versions of perl earlier than version 5.7.2.
+
+=for readme stop
+
+Packages such as L<Clone> and L<Storable> cannot properly handle Tree::Node
+objects.
+
+L<Devel::Size> may not properly determine the size of a node. Use the
+L</_allocated> method to determine how much space is allocated for the
+node in C.  This does not include the overhead for Perl to maintain a
+reference to the C struct.
+
+=for readme,install continue
+
+=head1 AUTHOR
+
+Robert Rothenberg <rrwo at cpan.org>
+
+=head2 Suggestions and Bug Reporting
+
+Feedback is always welcome.  Please use the CPAN Request Tracker at
+L<http://rt.cpan.org> to submit bug reports.
+
+=head1 LICENSE
+
+Copyright (c) 2005 Robert Rothenberg. All rights reserved.
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+=cut
+

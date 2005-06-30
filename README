@@ -1,0 +1,70 @@
+NAME
+    Tree::Node - Memory-efficient tree nodes in Perl
+
+REQUIREMENTS
+    Perl 5.6.0 or newer is required. Only core modules are used.
+
+    A C compiler to is required to build the module.
+
+INSTALLATION
+    Installation can be done using the traditional Makefile.PL or the newer
+    Build.PL methods.
+
+    Using Makefile.PL:
+
+      perl Makefile.PL
+      make
+      make test
+      make install
+
+    (On Windows platforms you should use `nmake' instead.)
+
+SYNOPSIS
+      use Tree::Node;
+
+      $node = Tree::Node->new(2);
+
+      $node->set_child(0, $left);
+      $node->set_child(1, $right);
+
+      while ($node->key_cmp($key) < 0) {
+        $node = $node->get_child(0);
+      }    
+
+DESCRIPTION
+    This module implements a memory-efficient node type (for trees, skip
+    lists and similar data structures) for Perl.
+
+    You may ask "Why bother implementing an ordered structure such as a tree
+    when Perl has hashes built-in?" Since Perl is optimized for speed over
+    memory usage, hashes (and lists) use a lot of memory.
+
+    So the purpose of this package is to provide a simple low-level Node
+    class which can be used as a base class to implement various kinds of
+    tree structures. Each node has a key/value pair and a variable number of
+    "children" pointers.
+
+    There is no Pure-perl version because this package was written to
+    overcome limitations of Perl.
+
+KNOWN ISSUES
+    This module implements a Perl wrapper around a C struct, which involves
+    a blessed reference to a pointer to the struct. This overhead may make
+    up for any memory savings that the C-based struct provided.
+
+    This module uses the C `malloc' function, which may cause problems on
+    versions of perl earlier than version 5.7.2.
+
+AUTHOR
+    Robert Rothenberg <rrwo at cpan.org>
+
+  Suggestions and Bug Reporting
+
+    Feedback is always welcome. Please use the CPAN Request Tracker at
+    http://rt.cpan.org to submit bug reports.
+
+LICENSE
+    Copyright (c) 2005 Robert Rothenberg. All rights reserved. This program
+    is free software; you can redistribute it and/or modify it under the
+    same terms as Perl itself.
+
