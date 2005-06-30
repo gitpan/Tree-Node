@@ -1,5 +1,9 @@
 Revision history for Perl extension Tree::Node.
 
+0.02  Thu Jun 30 2005
+	- minor updates to documentation
+	- fixed missing include in TreeNode.c
+
 0.01  Wed Jun 29 11:52:11 2005
 	- original version; created by h2xs 1.23 with options
 		-n Tree::Node -v 0.01 -b 5.6.0

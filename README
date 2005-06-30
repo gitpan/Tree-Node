@@ -47,6 +47,15 @@ DESCRIPTION
     There is no Pure-perl version because this package was written to
     overcome limitations of Perl.
 
+REVISION HISTORY
+    The following changes have been made since the last release:
+
+    0.02  Thu Jun 30 2005
+            - minor updates to documentation
+            - fixed missing include in TreeNode.c
+
+    See the Changes file for a more detailed list of changes.
+
 KNOWN ISSUES
     This module implements a Perl wrapper around a C struct, which involves
     a blessed reference to a pointer to the struct. This overhead may make

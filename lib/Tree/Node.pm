@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 require XSLoader;
 XSLoader::load('Tree::Node', $VERSION);
@@ -185,6 +185,18 @@ allocated for a node with C<$child_count> children.
 =end internal
 
 =back
+
+=begin readme
+
+=head1 REVISION HISTORY
+
+The following changes have been made since the last release:
+
+=for readme include file="Changes" type="text" start="^0.02" stop="^0.01"
+
+See the F<Changes> file for a more detailed list of changes.
+
+=end readme
 
 =for readme continue
 

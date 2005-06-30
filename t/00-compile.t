@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use constant MINIMUM_VERSION => '0.01';
+use constant MINIMUM_VERSION => '0.02';
 
 use Test::More;
 
