@@ -7,10 +7,7 @@ REQUIREMENTS
     A C compiler to is required to build the module.
 
 INSTALLATION
-    Installation can be done using the traditional Makefile.PL or the newer
-    Build.PL methods.
-
-    Using Makefile.PL:
+    Installation can be done using the traditional Makefile.PL method:
 
       perl Makefile.PL
       make
@@ -44,17 +41,20 @@ DESCRIPTION
     tree structures. Each node has a key/value pair and a variable number of
     "children" pointers.
 
+    How nodes are organized or the algorithm used to organize them is for
+    you to implement.
+
     There is no Pure-perl version because this package was written to
     overcome limitations of Perl.
 
 REVISION HISTORY
     The following changes have been made since the last release:
 
-    0.02  Thu Jun 30 2005
-            - minor updates to documentation
-            - fixed missing include in TreeNode.c
+    0.03  Sat Jul  2 2005
+            - fixed issue with SIGNATURE file
+            - more updates to documentation
 
-    See the Changes file for a more detailed list of changes.
+    See the Changes file for a more detailed revision history.
 
 KNOWN ISSUES
     This module implements a Perl wrapper around a C struct, which involves

@@ -1,6 +1,7 @@
 Changes
 Makefile.PL
 MANIFEST
+META.yml
 Node.xs
 ppport.h
 README
@@ -15,4 +16,3 @@ TreeNode.c
 TreeNode.h
 typemap
 SIGNATURE
-META.yml                                 Module meta-data (added by MakeMaker)

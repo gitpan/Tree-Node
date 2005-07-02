@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 require XSLoader;
 XSLoader::load('Tree::Node', $VERSION);
@@ -26,10 +26,7 @@ A C compiler to is required to build the module.
 
 =head1 INSTALLATION
 
-Installation can be done using the traditional Makefile.PL or the newer
-Build.PL methods.
-
-Using Makefile.PL:
+Installation can be done using the traditional F<Makefile.PL> method:
 
   perl Makefile.PL
   make
@@ -68,6 +65,9 @@ So the purpose of this package is to provide a simple low-level Node
 class which can be used as a base class to implement various kinds
 of tree structures.  Each node has a key/value pair and a variable
 number of "children" pointers.
+
+How nodes are organized or the algorithm used to organize them is
+for you to implement.
 
 There is no Pure-perl version because this package was written to
 overcome limitations of Perl.
@@ -192,9 +192,9 @@ allocated for a node with C<$child_count> children.
 
 The following changes have been made since the last release:
 
-=for readme include file="Changes" type="text" start="^0.02" stop="^0.01"
+=for readme include file="Changes" type="text" start="^0.03" stop="^0.02"
 
-See the F<Changes> file for a more detailed list of changes.
+See the F<Changes> file for a more detailed revision history.
 
 =end readme
 
