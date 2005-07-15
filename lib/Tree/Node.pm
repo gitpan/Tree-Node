@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 require XSLoader;
 XSLoader::load('Tree::Node', $VERSION);
@@ -23,6 +23,9 @@ Tree::Node - Memory-efficient tree nodes in Perl
 Perl 5.6.0 or newer is required. Only core modules are used.
 
 A C compiler to is required to build the module.
+
+Note that the C code uses the C<malloc> and C<realloc> functions,
+which are not considered portable before Perl 5.7.2.
 
 =head1 INSTALLATION
 
@@ -182,6 +185,25 @@ node.  It does not include the Perl overhead (see L</KNOWN ISSUES> below).
 This is a utility routine which returns the amount of space that would be
 allocated for a node with C<$child_count> children.
 
+=item _increment_child_count
+
+  $node->_increment_child_count;
+
+Adds space for a new child node, but does not instantiate one (in part
+due to limitations of XS code being able to determine the current
+namespace).
+
+=item _rotate_children
+
+  $node->_rotate_children($bottom);
+
+Rotates the children up one level. Useful after the L<_increment_child_count>
+method for inserting a node in the beginning rather than end.
+
+The C<$bottom> level refers to the level to stop at. This allows nodes
+below that level to not be rotated, for instance, if one wishes to
+reserve nodes for other purposes (such as linking to parent nodes).
+
 =end internal
 
 =back
@@ -192,7 +214,7 @@ allocated for a node with C<$child_count> children.
 
 The following changes have been made since the last release:
 
-=for readme include file="Changes" type="text" start="^0.03" stop="^0.02"
+=for readme include file="Changes" type="text" start="^0.04" stop="^0.03"
 
 See the F<Changes> file for a more detailed revision history.
 
@@ -220,6 +242,11 @@ node in C.  This does not include the overhead for Perl to maintain a
 reference to the C struct.
 
 =for readme,install continue
+
+=head1 SEE ALSO
+
+L<Tree::DAG_Node> is written in pure Perl, but it offers a more
+flexible interface.
 
 =head1 AUTHOR
 

@@ -9,7 +9,6 @@ WriteMakefile(
       'File::Copy'                     => 0,
       'File::Spec'                     => 0,
       'Test::More'                     => 0,
-      'XSLoader'                       => 0,
     },
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/Tree/Node.pm', # retrieve abstract from module

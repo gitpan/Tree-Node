@@ -3,9 +3,9 @@
 use strict;
 use warnings;
 
-use Test::More tests => 31;
+use Test::More tests => 38;
 
-use_ok("Tree::Node");
+use_ok("Tree::Node", 0.04);
 
 # for(1..16) {
 #   print STDERR "\x23 ",
@@ -24,6 +24,12 @@ ok($x->isa("Tree::Node"), "isa");
 ok($x->child_count == $size, "level == size");
 ok($x->_allocated == Tree::Node::_allocated_by_child_count($size),
  "_allocated \& size");
+
+{
+  $x->_increment_child_count;
+  is($x->child_count, $size+1, "added child");
+  $size = $x->child_count; # so later tests pass
+}
 
 my $y = Tree::Node->new(2);
 $y->set_key("moo");
@@ -55,7 +61,6 @@ ok(defined $x, "x defined after set_child");
 
 my $z = $y->get_child(0);
 ok($z == $x);
-
 ok(defined $z, "z=get_child(0) defined");
 ok($z->isa("Tree::Node"), "isa");
 ok($z->child_count == $size, "z->child_count == size");
@@ -86,4 +91,13 @@ eval { $z->get_child(6); };
 ok($@, "get_child out of bounds");
 ok(!defined $z->get_child_or_undef(6), "get_child_or_undef");
 
+my $w = Tree::Node->new(3);
+$w->set_child(0, $z);
+ok($w->get_child(0) == $z);
+ok(!defined $w->get_child(1));
+ok(!defined $w->get_child(2));
+$w->_rotate_children(0);
+ok($w->get_child(1) == $z);
+ok(!defined $w->get_child(0));
+ok(!defined $w->get_child(2));
 

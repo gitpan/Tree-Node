@@ -30,7 +30,7 @@ new(package, child_count)
     SV*   n    = newSViv((IV) self);
     RETVAL     = newRV_noinc(n);
     sv_bless(RETVAL, gv_stashpv(package, 0));
-    SvREADONLY_on(n);
+#    SvREADONLY_on(n);
   OUTPUT:
     RETVAL
 
@@ -68,6 +68,43 @@ _allocated(n)
     RETVAL = _allocated(self);
   OUTPUT:
     RETVAL
+
+void
+_increment_child_count(n)
+    SV* n
+  PROTOTYPE: $
+  CODE:
+    Node* clone;
+    Node* self = SV2NODE(n);
+    int   count = child_count(self);
+    if (count == MAX_LEVEL)
+      croak("cannot add another child: we have %d children", count);
+    clone = (Node*) realloc(self, SIZE(count+1));
+    if (clone == NULL)
+      croak("cannot add another child: realloc failed");
+#    SvREADONLY_off(n);
+    sv_setiv((SV*)SvRV(n), clone);
+#    SvREADONLY_on(n);
+    clone->child_count++;
+    clone->next[count] = &PL_sv_undef;
+
+void
+_rotate_children(n, bottom)
+    SV* n
+    int bottom
+  PROTOTYPE: $$
+  CODE:
+    Node* self = SV2NODE(n);
+    SV* tmp;
+    int count = child_count(self);
+    if (bottom >= count)
+      croak("bottom %d cannot exceed child count %d", bottom, count);
+    if (count>(bottom+1)) {
+      tmp = self->next[count-1];
+      while (count-- > bottom)
+        self->next[count] = self->next[count-1];
+      self->next[bottom] = tmp;    
+    }
 
 int
 child_count(n)

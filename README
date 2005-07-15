@@ -6,6 +6,9 @@ REQUIREMENTS
 
     A C compiler to is required to build the module.
 
+    Note that the C code uses the `malloc' and `realloc' functions, which
+    are not considered portable before Perl 5.7.2.
+
 INSTALLATION
     Installation can be done using the traditional Makefile.PL method:
 
@@ -50,9 +53,10 @@ DESCRIPTION
 REVISION HISTORY
     The following changes have been made since the last release:
 
-    0.03  Sat Jul  2 2005
-            - fixed issue with SIGNATURE file
-            - more updates to documentation
+    0.04  Fri Jul 15 2005
+            - added _increment_child_count and _rotate_children methods
+            - updated documentation
+            - removed XSLoader from dependencies, since CPANPLUS complains
 
     See the Changes file for a more detailed revision history.
 
@@ -63,6 +67,10 @@ KNOWN ISSUES
 
     This module uses the C `malloc' function, which may cause problems on
     versions of perl earlier than version 5.7.2.
+
+SEE ALSO
+    Tree::DAG_Node is written in pure Perl, but it offers a more flexible
+    interface.
 
 AUTHOR
     Robert Rothenberg <rrwo at cpan.org>
