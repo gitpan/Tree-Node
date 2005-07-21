@@ -3,9 +3,9 @@
 use strict;
 use warnings;
 
-use Test::More tests => 38;
+use Test::More tests => 51;
 
-use_ok("Tree::Node", 0.04);
+use_ok("Tree::Node", 0.05);
 
 # for(1..16) {
 #   print STDERR "\x23 ",
@@ -25,11 +25,6 @@ ok($x->child_count == $size, "level == size");
 ok($x->_allocated == Tree::Node::_allocated_by_child_count($size),
  "_allocated \& size");
 
-{
-  $x->_increment_child_count;
-  is($x->child_count, $size+1, "added child");
-  $size = $x->child_count; # so later tests pass
-}
 
 my $y = Tree::Node->new(2);
 $y->set_key("moo");
@@ -37,9 +32,11 @@ $y->set_key("moo");
 ok(defined $y, "defined");
 ok($y->isa("Tree::Node"), "isa");
 
+# Dump($x);
 ok($x->key eq "foo", "key");
 eval { $x->set_key("moo"); };
 ok($x->key() ne "moo");
+
 
 ok($x->key_cmp("monkey") == -1);
 ok($x->key_cmp("foo") == 0);
@@ -91,13 +88,62 @@ eval { $z->get_child(6); };
 ok($@, "get_child out of bounds");
 ok(!defined $z->get_child_or_undef(6), "get_child_or_undef");
 
-my $w = Tree::Node->new(3);
-$w->set_child(0, $z);
-ok($w->get_child(0) == $z);
-ok(!defined $w->get_child(1));
-ok(!defined $w->get_child(2));
-$w->_rotate_children(0);
-ok($w->get_child(1) == $z);
-ok(!defined $w->get_child(0));
-ok(!defined $w->get_child(2));
+# use Devel::Peek;
+{
+  my @c = $x->get_children;
+  is(@c, $size);
+  my $sx = $x->_allocated;
+# Dump($x);
+  $x->add_children(undef);
+# Dump($x);  # (*) This one prevents a crash: why?!?!
+  ok($x->_allocated > $sx, "size increased");
+  is($x->child_count, $size+1, "added child");
+  $size = $x->child_count; # so later tests pass
+  @c = $x->get_children;
+  is(@c, $size);
+} 
 
+{
+  my @c = $x->get_children;
+  is(@c, $size);
+# Dump($x);
+  $x->add_children((undef) x 2);
+# Dump($x);
+  is($x->child_count, $size+2, "added child");
+  $size = $x->child_count; # so later tests pass
+  @c = $x->get_children;
+  is(@c, $size);
+}
+
+{
+  my @c = $x->get_children;
+  is(@c, $size);
+  my $sx = $x->_allocated;
+  $x->set_child(0,$z);
+# Dump($x);
+  $x->add_children_left($y);
+# Dump($x);  # (*) This one prevents a crash: why?!?!
+  ok($x->_allocated > $sx, "size increased");
+  is($x->child_count, $size+1, "added child");
+  $size = $x->child_count; # so later tests pass
+  @c = $x->get_children;
+  is(@c, $size);
+  ok($x->get_child(0) == $y);
+  ok($x->get_child(1) == $z);
+} 
+
+{
+  my @c = $x->get_children;
+  is(@c, $size);
+# Dump($x);
+  $x->add_children_left($z,$y);
+# Dump($x);
+  is($x->child_count, $size+2, "added child");
+  $size = $x->child_count; # so later tests pass
+  @c = $x->get_children;
+  is(@c, $size);
+  ok($x->get_child(1) == $y);
+  ok($x->get_child(0) == $z);
+  ok($x->get_child(2) == $y);
+  ok($x->get_child(3) == $z);
+}

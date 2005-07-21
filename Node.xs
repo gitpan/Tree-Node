@@ -1,3 +1,4 @@
+#include <malloc.h>
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
@@ -30,7 +31,7 @@ new(package, child_count)
     SV*   n    = newSViv((IV) self);
     RETVAL     = newRV_noinc(n);
     sv_bless(RETVAL, gv_stashpv(package, 0));
-#    SvREADONLY_on(n);
+    SvREADONLY_on(n);
   OUTPUT:
     RETVAL
 
@@ -55,7 +56,7 @@ _allocated_by_child_count(count)
     int count
   PROTOTYPE: $
   CODE:
-    RETVAL = SIZE(count);
+    RETVAL = NODESIZE(count);
   OUTPUT:
     RETVAL
 
@@ -70,40 +71,48 @@ _allocated(n)
     RETVAL
 
 void
-_increment_child_count(n)
+add_children(n, ...)
     SV* n
-  PROTOTYPE: $
+  ALIAS:
+    add_children_left = 1
+  PROTOTYPE: $;@
+  PREINIT:
+    int num = 1;
   CODE:
-    Node* clone;
+    Node* back;
     Node* self = SV2NODE(n);
-    int   count = child_count(self);
-    if (count == MAX_LEVEL)
-      croak("cannot add another child: we have %d children", count);
-    clone = (Node*) realloc(self, SIZE(count+1));
-    if (clone == NULL)
-      croak("cannot add another child: realloc failed");
-#    SvREADONLY_off(n);
-    sv_setiv((SV*)SvRV(n), clone);
-#    SvREADONLY_on(n);
-    clone->child_count++;
-    clone->next[count] = &PL_sv_undef;
+    int   count = self->child_count;
+    int   i;
 
-void
-_rotate_children(n, bottom)
-    SV* n
-    int bottom
-  PROTOTYPE: $$
-  CODE:
-    Node* self = SV2NODE(n);
-    SV* tmp;
-    int count = child_count(self);
-    if (bottom >= count)
-      croak("bottom %d cannot exceed child count %d", bottom, count);
-    if (count>(bottom+1)) {
-      tmp = self->next[count-1];
-      while (count-- > bottom)
-        self->next[count] = self->next[count-1];
-      self->next[bottom] = tmp;    
+    num = items-1;
+
+    if (num<1)
+      croak("number of children to add must be >= 1");
+    if ((count+num) > MAX_LEVEL)
+      croak("cannot %d children: we already have %d children", num, count);
+
+    back = self;
+    self = realloc(self, (size_t) NODESIZE(count+num));
+    if (self==NULL)
+      croak("unable to allocate additional memory");
+
+    if (self != back) {
+      SvREADONLY_off((SV*)SvRV(n));
+      sv_setiv((SV*) SvRV(n), (IV) self);
+      SvREADONLY_on((SV*)SvRV(n));
+    }
+
+    self->child_count += num;
+
+    if (ix==0) {
+      for(i=0; i<num; i++)
+        self->next[count+i] = newSVsv(ST(i+1));
+    }
+    else if (ix==1) {
+      for(i=(count-1); i>=0; i--)
+        self->next[i+num] = self->next[i];
+      for(i=0; i<num; i++)
+        self->next[i] = newSVsv(ST(i+1));
     }
 
 int
@@ -115,6 +124,18 @@ child_count(n)
     RETVAL = child_count(self);
   OUTPUT:
     RETVAL
+
+void
+get_children(n)
+    SV* n
+  PROTOTYPE: $
+  PREINIT:
+    int i;
+  PPCODE:
+    Node* self = SV2NODE(n);
+    EXTEND(SP, self->child_count);
+    for (i = 0; i < self->child_count; i++)
+      PUSHs(get_child(self, i));
 
 SV*
 get_child(n, index)

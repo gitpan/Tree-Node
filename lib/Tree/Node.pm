@@ -4,10 +4,11 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 require XSLoader;
 XSLoader::load('Tree::Node', $VERSION);
+
 
 1;
 __END__
@@ -23,9 +24,6 @@ Tree::Node - Memory-efficient tree nodes in Perl
 Perl 5.6.0 or newer is required. Only core modules are used.
 
 A C compiler to is required to build the module.
-
-Note that the C code uses the C<malloc> and C<realloc> functions,
-which are not considered portable before Perl 5.7.2.
 
 =head1 INSTALLATION
 
@@ -162,6 +160,22 @@ Returns the child node.  Dies when the C<$index> is out of bounds.
 Like L</get_child>, but returns C<undef> rather than dying when the
 C<$index> is out of bounds.
 
+=item get_children
+
+  @children = $node->get_children;
+
+=item add_children
+
+  $node->add_children(@children)
+
+Increases the L</child_count> and allocates space for the child nodes
+specified.  (The child nodes can be C<undef>.)
+
+=item add_children_left
+
+Same as L</add_children>, except that the new nodes are added to
+the beginning rather than end of the node list.
+
 =item MAX_LEVEL
 
   $max = Tree::Node::MAX_LEVEL;
@@ -185,25 +199,6 @@ node.  It does not include the Perl overhead (see L</KNOWN ISSUES> below).
 This is a utility routine which returns the amount of space that would be
 allocated for a node with C<$child_count> children.
 
-=item _increment_child_count
-
-  $node->_increment_child_count;
-
-Adds space for a new child node, but does not instantiate one (in part
-due to limitations of XS code being able to determine the current
-namespace).
-
-=item _rotate_children
-
-  $node->_rotate_children($bottom);
-
-Rotates the children up one level. Useful after the L<_increment_child_count>
-method for inserting a node in the beginning rather than end.
-
-The C<$bottom> level refers to the level to stop at. This allows nodes
-below that level to not be rotated, for instance, if one wishes to
-reserve nodes for other purposes (such as linking to parent nodes).
-
 =end internal
 
 =back
@@ -214,7 +209,7 @@ reserve nodes for other purposes (such as linking to parent nodes).
 
 The following changes have been made since the last release:
 
-=for readme include file="Changes" type="text" start="^0.04" stop="^0.03"
+=for readme include file="Changes" type="text" start="^0.05" stop="^0.04"
 
 See the F<Changes> file for a more detailed revision history.
 

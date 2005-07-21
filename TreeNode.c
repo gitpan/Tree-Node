@@ -1,5 +1,4 @@
 
-
 #include <stdlib.h>
 
 #include "EXTERN.h"
@@ -16,7 +15,7 @@ Node * new(int child_count)
   if ((child_count < 1) || (child_count > MAX_LEVEL))
     croak("child_count out of bounds: must be between [1..%d]", MAX_LEVEL);
 
-  n = malloc(SIZE(child_count));
+  n = malloc((size_t) NODESIZE(child_count));
   if (n == NULL)
     croak("unable to a allocate memory");
 
@@ -31,15 +30,15 @@ Node * new(int child_count)
   return n;
 }
 
-void DESTROY(Node * n)
+void DESTROY(Node* n)
 {
-  int index = n->child_count;
-
-  while (index--)
-    SvREFCNT_dec(n->next[index]);
+  int child_count = n->child_count;
 
   SvREFCNT_dec(n->key);
   SvREFCNT_dec(n->value);
+
+  while (child_count--)
+    SvREFCNT_dec(n->next[child_count]);
 
   free(n);
 }
@@ -108,5 +107,5 @@ SV* get_value(Node *n)
 
 int _allocated(Node* n)
 {
-  return SIZE(n->child_count);
+  return NODESIZE(n->child_count);
 }

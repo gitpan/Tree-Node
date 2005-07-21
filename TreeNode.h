@@ -7,13 +7,13 @@
 #define MAX_LEVEL UCHAR_MAX
 #endif
 
-#define SIZE(N) sizeof(Node) + (sizeof(SV*) * N)
+#define NODESIZE(N) sizeof(Node) + (sizeof(SV*) * (N+1))
 
 typedef struct {
-  SV*            key;
-  SV*            value;
-  unsigned char  child_count;
-  SV*            next[]; 
+  SV*   key;
+  SV*   value;
+  int	child_count;
+  SV*   next[]; 
 } Node;
 
 Node * new(int child_count);

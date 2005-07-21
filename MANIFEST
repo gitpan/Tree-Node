@@ -9,6 +9,9 @@ t/00-compile.t
 t/10-node.t
 t/11-node-base.t
 t/11-node-isa.t
+t/80-leak.t
+t/90-fileport.t
+t/90-pod.t
 fallback/const-c.inc
 fallback/const-xs.inc
 lib/Tree/Node.pm

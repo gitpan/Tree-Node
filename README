@@ -6,9 +6,6 @@ REQUIREMENTS
 
     A C compiler to is required to build the module.
 
-    Note that the C code uses the `malloc' and `realloc' functions, which
-    are not considered portable before Perl 5.7.2.
-
 INSTALLATION
     Installation can be done using the traditional Makefile.PL method:
 
@@ -53,10 +50,17 @@ DESCRIPTION
 REVISION HISTORY
     The following changes have been made since the last release:
 
-    0.04  Fri Jul 15 2005
-            - added _increment_child_count and _rotate_children methods
-            - updated documentation
-            - removed XSLoader from dependencies, since CPANPLUS complains
+    0.05  Fri 22 Jul 2005
+            - removed _rotate_children method
+            - renamed SIZE macro to NODESIZE
+            - fixed bug where node size allocation was too small!
+            - renamed _increment_child_count to add_children
+            - add_children accepts a list of children to add (so it can add
+              multiple children)
+            - added get_children method to return an array of children
+            - readonly flag is set (this was disabled in v0.04)
+            - documentation updated accordingly
+            - added developer tests
 
     See the Changes file for a more detailed revision history.
 
