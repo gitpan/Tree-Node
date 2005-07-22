@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.05';
+our $VERSION = '0.051';
 
 require XSLoader;
 XSLoader::load('Tree::Node', $VERSION);

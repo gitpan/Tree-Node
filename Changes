@@ -1,5 +1,8 @@
 Revision history for Perl extension Tree::Node.
 
+0.051 Fri 22 Jul 2005
+	- fixed bad SIGNATURE file
+
 0.05  Fri 22 Jul 2005
 	- removed _rotate_children method
 	- renamed SIZE macro to NODESIZE
