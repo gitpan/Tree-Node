@@ -1,5 +1,3 @@
-
-
 #include "perl.h"
 
 #ifndef MAX_LEVEL
@@ -12,7 +10,7 @@
 typedef struct {
   SV*   key;
   SV*   value;
-  int	child_count;
+  int   child_count;
   SV*   next[]; 
 } Node;
 

@@ -2,14 +2,21 @@
 
 package Inherited;
 
-use Tree::Node;
+use Tree::Node 0.06, ':p_node';
 
 our @ISA = qw(Tree::Node);
+{
+  no warnings 'redefine';
 
-sub key_cmp {
-  my $self = shift;
-  my $key  = shift;
-  return ($key cmp $self->key);
+  sub p_key_cmp($$) {
+    my ($p, $key) = @_;
+    ($key cmp p_get_key($p));
+  };
+
+  sub key_cmp($$) {
+    my ($self, $key) = @_;
+    p_key_cmp($self->to_p_node, $key); 
+  }
 }
 
 package main;

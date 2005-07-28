@@ -1,4 +1,7 @@
+#if USE_MALLOC
 #include <malloc.h>
+#endif
+
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
@@ -32,6 +35,29 @@ new(package, child_count)
     RETVAL     = newRV_noinc(n);
     sv_bless(RETVAL, gv_stashpv(package, 0));
     SvREADONLY_on(n);
+    while (child_count--)
+      self->next[child_count] = &PL_sv_undef;
+  OUTPUT:
+    RETVAL
+
+IV
+to_p_node(n)
+    SV* n
+  PROTOTYPE: $
+  CODE:
+    RETVAL = (IV) SV2NODE(n);
+  OUTPUT:
+    RETVAL
+
+IV
+p_new(child_count)
+    int  child_count
+  PROTOTYPE: $$
+  CODE:
+    Node* self = new(child_count);
+    while (child_count--)
+      self->next[child_count] = NULL;
+    RETVAL = (IV) self;
   OUTPUT:
     RETVAL
 
@@ -41,7 +67,17 @@ DESTROY(n)
   PROTOTYPE: $
   CODE:
     Node* self = SV2NODE(n);
+    int child_count = self->child_count;
+    while (child_count--)
+      SvREFCNT_dec(self->next[child_count]);
     DESTROY(self);
+
+void
+p_destroy(self)
+    IV self
+  PROTOTYPE: $
+  CODE:
+    if (self) DESTROY((Node*) self);
 
 int
 MAX_LEVEL()
@@ -70,6 +106,16 @@ _allocated(n)
   OUTPUT:
     RETVAL
 
+int
+p_allocated(n)
+    IV n
+  PROTOTYPE: $
+  CODE:
+    RETVAL = _allocated((Node*) n);
+  OUTPUT:
+    RETVAL
+
+
 void
 add_children(n, ...)
     SV* n
@@ -92,9 +138,13 @@ add_children(n, ...)
       croak("cannot %d children: we already have %d children", num, count);
 
     back = self;
+#if USE_MALLOC
     self = realloc(self, (size_t) NODESIZE(count+num));
     if (self==NULL)
       croak("unable to allocate additional memory");
+#else
+    Renewc(self, NODESIZE(count+num), char, Node);
+#endif
 
     if (self != back) {
       SvREADONLY_off((SV*)SvRV(n));
@@ -125,6 +175,15 @@ child_count(n)
   OUTPUT:
     RETVAL
 
+int
+p_child_count(self)
+    IV self;
+  PROTOTYPE: $
+  CODE:
+    RETVAL = child_count((Node*) self);
+  OUTPUT:
+    RETVAL
+
 void
 get_children(n)
     SV* n
@@ -148,6 +207,34 @@ get_child(n, index)
   OUTPUT:
     RETVAL
 
+IV
+p_get_child(n, index);
+    IV n;
+    int index
+  PROTOTYPE: $$
+  CODE:
+    Node* self = (Node*) n;
+    if ((index >= self->child_count) || (index < 0))
+      croak("index out of bounds: must be between [0..%d]", self->child_count-1);
+    RETVAL = (IV) self->next[index];
+  OUTPUT:
+    RETVAL
+
+IV
+p_get_child_or_null(n, index);
+    IV n;
+    int index
+  PROTOTYPE: $$
+  CODE:
+    Node* self = (Node*) n;
+    if ((index >= self->child_count) || (index < 0))
+      RETVAL = (IV) NULL;
+    else
+      RETVAL = (IV) self->next[index];
+  OUTPUT:
+    RETVAL
+
+
 SV*
 get_child_or_undef(n, index)
     SV* n
@@ -169,6 +256,17 @@ set_child(n, index, t)
     Node* self = SV2NODE(n);
     set_child(self, index, t);
 
+void
+p_set_child(n, index, t)
+    IV n
+    int index
+    IV t
+  PROTOTYPE: $$$
+  CODE:
+    Node* self = (Node*) n;
+    if ((index >= self->child_count) || (index < 0))
+      croak("index out of bounds: must be between [0..%d]", self->child_count-1);
+    self->next[index] = (SV*) t;
 
 void
 set_key(n, k)
@@ -179,6 +277,14 @@ set_key(n, k)
     Node* self = SV2NODE(n);
     set_key(self, k);
 
+void
+p_set_key(n, k)
+    IV n
+    SV* k
+  PROTOTYPE: $$
+  CODE:
+    set_key((Node*) n, k);
+
 SV*
 key(n)
     SV* n
@@ -186,6 +292,25 @@ key(n)
   CODE:
     Node* self = SV2NODE(n);
     RETVAL = get_key(self);
+  OUTPUT:
+    RETVAL
+
+SV*
+p_get_key(n)
+    IV n
+  PROTOTYPE: $
+  CODE:
+    RETVAL = get_key((Node*) n);
+  OUTPUT:
+    RETVAL
+
+I32
+p_key_cmp(n, k)
+    IV n
+    SV* k
+  PROTOTYPE: $$
+  CODE:
+    RETVAL = key_cmp((Node*) n, k);
   OUTPUT:
     RETVAL
 
@@ -209,6 +334,14 @@ set_value(n, v)
     Node* self = SV2NODE(n);
     set_value(self, v);
 
+void
+p_set_value(n, v)
+    IV n
+    SV* v
+  PROTOTYPE: $$
+  CODE:
+    set_value((Node*) n, v);
+
 SV*
 value(n)
     SV* n
@@ -219,3 +352,11 @@ value(n)
   OUTPUT:
     RETVAL
 
+SV*
+p_get_value(n)
+    IV n
+  PROTOTYPE: $
+  CODE:
+    RETVAL = get_value((Node*) n);
+  OUTPUT:
+    RETVAL

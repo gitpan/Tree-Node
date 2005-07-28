@@ -15,14 +15,15 @@ Node * new(int child_count)
   if ((child_count < 1) || (child_count > MAX_LEVEL))
     croak("child_count out of bounds: must be between [1..%d]", MAX_LEVEL);
 
+#if USE_MALLOC
   n = malloc((size_t) NODESIZE(child_count));
   if (n == NULL)
     croak("unable to a allocate memory");
+#else
+  Newc(1, n, NODESIZE(child_count), char, Node);
+#endif
 
   n->child_count  = child_count;
-
-  while (child_count--)
-    n->next[child_count] = &PL_sv_undef;
 
   n->key   = &PL_sv_undef;
   n->value = &PL_sv_undef;
@@ -32,15 +33,14 @@ Node * new(int child_count)
 
 void DESTROY(Node* n)
 {
-  int child_count = n->child_count;
-
   SvREFCNT_dec(n->key);
   SvREFCNT_dec(n->value);
 
-  while (child_count--)
-    SvREFCNT_dec(n->next[child_count]);
-
+#if USE_MALLOC
   free(n);
+#else
+  Safefree(n);
+#endif
 }
 
 int child_count(Node * n)

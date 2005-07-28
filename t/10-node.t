@@ -3,9 +3,9 @@
 use strict;
 use warnings;
 
-use Test::More tests => 51;
+use Test::More tests => 52;
 
-use_ok("Tree::Node", 0.05);
+use_ok("Tree::Node", 0.06);
 
 # for(1..16) {
 #   print STDERR "\x23 ",
@@ -20,6 +20,7 @@ $x->set_value("bar");
 
 ok(defined $x, "defined");
 ok($x->isa("Tree::Node"), "isa");
+ok($x->to_p_node != 0, "to_p");
 
 ok($x->child_count == $size, "level == size");
 ok($x->_allocated == Tree::Node::_allocated_by_child_count($size),

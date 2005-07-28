@@ -1,5 +1,14 @@
 Revision history for Perl extension Tree::Node.
 
+0.06  Thu 28 Jul 2005
+	- added Build.PL
+	- added additional tests ("kwalitee"-related)
+	- uses Perl malloc macros instead of system malloc
+	- updated documentation regarding memory usage
+	- added exports of utility functions
+	- added experimental procedural interface
+	- added to_p_node method to get pointer
+
 0.051 Fri 22 Jul 2005
 	- fixed bad SIGNATURE file
 
