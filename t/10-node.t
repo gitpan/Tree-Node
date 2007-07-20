@@ -3,9 +3,9 @@
 use strict;
 use warnings;
 
-use Test::More tests => 52;
+use Test::More tests => 59;
 
-use_ok("Tree::Node", 0.06);
+use_ok("Tree::Node", 0.08);
 
 # for(1..16) {
 #   print STDERR "\x23 ",
@@ -15,12 +15,25 @@ use_ok("Tree::Node", 0.06);
 my $size = 10;
 
 my $x = Tree::Node->new($size);
-$x->set_key("foo");
-$x->set_value("bar");
 
 ok(defined $x, "defined");
 ok($x->isa("Tree::Node"), "isa");
 ok($x->to_p_node != 0, "to_p");
+
+ok(!defined $x->key);
+ok(!defined $x->value);
+
+ok($x->key_cmp("bo") == -1);
+
+$x->set_key("poo");
+$x->set_value("bar");
+
+eval { $x->set_key("foo"); };
+ok($@);
+ok($x->key ne "foo");
+
+$x->force_set_key("foo");
+ok($x->key eq "foo");
 
 ok($x->child_count == $size, "level == size");
 ok($x->_allocated == Tree::Node::_allocated_by_child_count($size),
@@ -42,6 +55,7 @@ ok($x->key() ne "moo");
 ok($x->key_cmp("monkey") == -1);
 ok($x->key_cmp("foo") == 0);
 ok($x->key_cmp("bar") == 1);
+ok($x->key_cmp(undef) == 1);
 
 $x->set_value(1);
 ok($x->value == 1);

@@ -14,7 +14,7 @@ plan skip_all => "Devel::Leak not installed" if ($@);
 
 plan tests => 2;
 
-use_ok('Tree::Node', 0.05);
+use_ok('Tree::Node', 0.06, ':p_node');
 
 my @List = sort (1..10);
 
@@ -24,14 +24,16 @@ my $start = Devel::Leak::NoteSV($handle);
 # The problem is to test for memory leaks that aren't from the Perl core
 
 {
-  my $first = Tree::Node->new(1);
+  my $first = p_new(1);
   my $count = 0;
   foreach my $k (@List) {
-    my $node = Tree::Node->new(1);
-    $node->set_key($k);
-    $node->set_value(++$count);
-    $node->set_child(0, $first);
+    my $node = p_new(1);
+    p_set_key($node, $k);
+    p_set_value($node, ++$count);
+    p_set_child($node, 0, $first);
+    p_destroy($node);
   }
+  p_destroy($first);
 }
 
 my $finish = Devel::Leak::CheckSV($handle);

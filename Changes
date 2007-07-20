@@ -1,5 +1,16 @@
 Revision history for Perl extension Tree::Node.
 
+0.08  Fri 20 Jul 2007
+	- minor tweaks and typo corrections
+
+0.07  Fri 13 Jul 2007
+	- distro is no longer signed (due to Module:Signature issues)
+	- fixed error with reading undefined key or value
+	- added force_set_key mode to change key
+	- test for leaks in procedural interface
+	- improved pointer cast
+	- minor changes to Build.PL
+
 0.06  Thu 28 Jul 2005
 	- added Build.PL
 	- added additional tests ("kwalitee"-related)

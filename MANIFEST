@@ -12,6 +12,7 @@ t/11-node-base.t
 t/11-node-isa.t
 t/20-lowlevel.t
 t/80-leak.t
+t/82-leak.t
 t/90-fileport.t
 t/90-pod.t
 t/90-pod-cover.t
@@ -22,4 +23,3 @@ TreeNode.c
 TreeNode.h
 typemap
 SIGNATURE
-SIGNATURE    Added here by Module::Build

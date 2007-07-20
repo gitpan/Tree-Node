@@ -7,7 +7,6 @@ my $build = Module::Build->new
      module_name => 'Tree::Node',
      license => 'perl',
      requires => {
-       'base'                       => 0,
        'perl'                       => '5.6.0',
      },
      recommends => {
@@ -17,6 +16,7 @@ my $build = Module::Build->new
        'Test::Pod::Coverage'        => 0,
      },
      build_requires => {
+       'base'                       => 0,
        'Test::More'                 => 0,
      },
      xs_files => {
@@ -25,7 +25,7 @@ my $build = Module::Build->new
      c_source     =>   "./", 
      include_dirs => [ "./" ],
      dist_author        => 'Robert Rothenberg <rrwo at cpan.org>',
-     sign               => 1,
+     sign               => 0,
      create_readme      => ($Module::Build::VERSION >= 0.2702),
 );
 

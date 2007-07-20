@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.06';
+our $VERSION = '0.08';
 
 require XSLoader;
 XSLoader::load('Tree::Node', $VERSION);
@@ -17,7 +17,8 @@ our %EXPORT_TAGS = (
   'p_node' => [qw(
     p_new p_destroy p_allocated
     p_child_count p_get_child p_get_child_or_null p_set_child
-    p_set_key p_get_key p_key_cmp p_set_value p_get_value
+    p_set_key p_force_set_key p_get_key p_key_cmp
+    p_set_value p_get_value
   )],
   'utility' => [qw(
     _allocated_by_child_count MAX_LEVEL
@@ -128,6 +129,15 @@ Returns the number of childen allocated.
 
 Sets the key. Once it is set, it cannot be changed.
 
+=item force_set_key
+
+  $node->force_set_key($key);
+
+Sets the key, irregardless of whether it is already set. (Note
+that many data structures assume that the key is never changed,
+so you should only use this for cases where it is safe to do
+so.)
+
 =item key
 
   $key = $node->key;
@@ -141,6 +151,9 @@ Returns the node key.
 Compares the node key with a key using the Perl string comparison
 function C<cmp>.  Returns -1 if the node key is less than the
 argument, 0 if it is equal, and 1 if it is greater.
+
+If the key is undefined, then it will always return -1 (even if the
+argument is undefined).
 
 This method can be overriden if you need a different comparison
 routine.  To use numeric keys, for example:
@@ -312,6 +325,12 @@ the node, since Perl will not automatically destroy it when done.
 
 See L</to_p_node> for caveats about mixing interfaces.
 
+=item p_force_set_key
+
+  p_force_set_key( $ptr, $key );
+
+See L</to_p_node> for caveats about mixing interfaces.
+
 =item p_get_key
 
   $key = p_get_key( $ptr );
@@ -353,7 +372,7 @@ you must remember to manually destroy each pointer!
 
 The following changes have been made since the last release:
 
-=for readme include file="Changes" type="text" start="^0.06" stop="^0.05"
+=for readme include file="Changes" type="text" start="^0.08" stop="^0.06"
 
 See the F<Changes> file for a more detailed revision history.
 
@@ -371,7 +390,8 @@ savings that the C-based struct provided!
 So if you what you are doing is implementing a simple key/value lookup,
 then you may be better off sticking with hashes.  If what you are doing
 requires a special structure that cannot be satisfied with hashes (even
-sorted hashes), then this module may be useful to you.
+sorted hashes), or requires a very large number of nodes, then this module
+may be useful to you.
 
 Another alternative is to use the L</Procedural Interface>.
 
@@ -403,7 +423,7 @@ L<http://rt.cpan.org> to submit bug reports.
 
 =head1 LICENSE
 
-Copyright (c) 2005 Robert Rothenberg. All rights reserved.
+Copyright (c) 2005,2007 Robert Rothenberg. All rights reserved.
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 

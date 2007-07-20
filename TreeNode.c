@@ -85,14 +85,32 @@ void set_key(Node *n, SV* k)
   }
 }
 
+void force_set_key(Node *n, SV* k)
+{
+  if (SvOK(n->key)) {
+    warn("key is already set");
+  }
+  n->key = newRV_inc(k);
+}
+
 SV* get_key(Node *n)
 {
-  return SvREFCNT_inc(SvRV(n->key));
+  if (SvOK(n->key)) {
+    return SvREFCNT_inc(SvRV(n->key));
+  }
+  else {
+    return &PL_sv_undef;
+  }
 }
 
 I32 key_cmp(Node* n, SV* k)
 {
+  if (SvOK(n->key)) {
     return sv_cmp(SvRV(n->key), k);
+  }
+  else {
+    return -1;
+  }
 }
 
 void set_value(Node *n, SV* v)
@@ -102,7 +120,12 @@ void set_value(Node *n, SV* v)
 
 SV* get_value(Node *n)
 {
-  return SvREFCNT_inc(SvRV(n->value));
+  if (SvOK(n->key)) {
+    return SvREFCNT_inc(SvRV(n->value));
+  }
+  else {
+    return &PL_sv_undef;
+  }
 }
 
 int _allocated(Node* n)

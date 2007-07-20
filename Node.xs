@@ -18,8 +18,6 @@
 
 */
 
-#define SV2NODE(S) (Node*) SvIV(SvRV(S))
-
 MODULE = Tree::Node PACKAGE = Tree::Node
 
 PROTOTYPES: ENABLE
@@ -77,7 +75,7 @@ p_destroy(self)
     IV self
   PROTOTYPE: $
   CODE:
-    if (self) DESTROY((Node*) self);
+    if (self) DESTROY(IV2NODE(self));
 
 int
 MAX_LEVEL()
@@ -111,7 +109,7 @@ p_allocated(n)
     IV n
   PROTOTYPE: $
   CODE:
-    RETVAL = _allocated((Node*) n);
+    RETVAL = _allocated(IV2NODE(n));
   OUTPUT:
     RETVAL
 
@@ -180,7 +178,7 @@ p_child_count(self)
     IV self;
   PROTOTYPE: $
   CODE:
-    RETVAL = child_count((Node*) self);
+    RETVAL = child_count(IV2NODE(self));
   OUTPUT:
     RETVAL
 
@@ -213,7 +211,7 @@ p_get_child(n, index);
     int index
   PROTOTYPE: $$
   CODE:
-    Node* self = (Node*) n;
+    Node* self = IV2NODE(n);
     if ((index >= self->child_count) || (index < 0))
       croak("index out of bounds: must be between [0..%d]", self->child_count-1);
     RETVAL = (IV) self->next[index];
@@ -226,7 +224,7 @@ p_get_child_or_null(n, index);
     int index
   PROTOTYPE: $$
   CODE:
-    Node* self = (Node*) n;
+    Node* self = IV2NODE(n);
     if ((index >= self->child_count) || (index < 0))
       RETVAL = (IV) NULL;
     else
@@ -263,7 +261,7 @@ p_set_child(n, index, t)
     IV t
   PROTOTYPE: $$$
   CODE:
-    Node* self = (Node*) n;
+    Node* self = IV2NODE(n);
     if ((index >= self->child_count) || (index < 0))
       croak("index out of bounds: must be between [0..%d]", self->child_count-1);
     self->next[index] = (SV*) t;
@@ -278,12 +276,29 @@ set_key(n, k)
     set_key(self, k);
 
 void
+force_set_key(n, k)
+    SV* n
+    SV* k
+  PROTOTYPE: $$
+  CODE:
+    Node* self = SV2NODE(n);
+    force_set_key(self, k);
+
+void
 p_set_key(n, k)
     IV n
     SV* k
   PROTOTYPE: $$
   CODE:
-    set_key((Node*) n, k);
+    set_key(IV2NODE(n), k);
+
+void
+p_force_set_key(n, k)
+    IV n
+    SV* k
+  PROTOTYPE: $$
+  CODE:
+    force_set_key(IV2NODE(n), k);
 
 SV*
 key(n)
@@ -300,7 +315,7 @@ p_get_key(n)
     IV n
   PROTOTYPE: $
   CODE:
-    RETVAL = get_key((Node*) n);
+    RETVAL = get_key(IV2NODE(n));
   OUTPUT:
     RETVAL
 
@@ -310,7 +325,7 @@ p_key_cmp(n, k)
     SV* k
   PROTOTYPE: $$
   CODE:
-    RETVAL = key_cmp((Node*) n, k);
+    RETVAL = key_cmp(IV2NODE(n), k);
   OUTPUT:
     RETVAL
 
@@ -340,7 +355,7 @@ p_set_value(n, v)
     SV* v
   PROTOTYPE: $$
   CODE:
-    set_value((Node*) n, v);
+    set_value(IV2NODE(n), v);
 
 SV*
 value(n)
@@ -357,6 +372,6 @@ p_get_value(n)
     IV n
   PROTOTYPE: $
   CODE:
-    RETVAL = get_value((Node*) n);
+    RETVAL = get_value(IV2NODE(n));
   OUTPUT:
     RETVAL
